@@ -33,10 +33,10 @@ $result = $conn->query($sql);
             background-color: #f0f0f0;
         }
         .header {
-            background-image: url('uploads/cover4.jpg'); /* Sample placeholder image */
+            background-image: url('uploads/cover4.jpg');
             background-size: cover;
             background-position: center 95%;
-            height: 300px; /* Adjust height as needed */
+            height: 300px;
             position: relative;
         }
         .header-content {
@@ -74,8 +74,8 @@ $result = $conn->query($sql);
             border: 1px solid #ddd;
         }
         th, td {
-            padding: 12px 8px; /* Adjusted padding */
-            text-align: center; /* Center align text */
+            padding: 12px 8px;
+            text-align: center;
         }
         th {
             background-color: #f2f2f2;
@@ -118,26 +118,26 @@ $result = $conn->query($sql);
             color: white;
         }
         .modal {
-            display: none; /* Hidden by default */
-            position: fixed; /* Stay in place */
-            z-index: 1; /* Sit on top */
+            display: none;
+            position: fixed;
+            z-index: 1;
             left: 0;
             top: 0;
-            width: 100%; /* Full width */
-            height: 100%; /* Full height */
-            overflow: auto; /* Enable scroll if needed */
-            background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
             padding: 0;
         }
         .modal-content {
-            background-color: #fff; /* Light green for background */
-            margin: auto; /* Centered in the viewport */
+            background-color: #fff;
+            margin: auto;
             border-radius: 10px;
-            width: 300px; /* Adjust width as needed */
+            width: 300px;
             text-align: center;
             border: 1px solid #ddd;
             padding: 20px;
-            position: absolute; /* Changed to absolute */
+            position: absolute;
             left: 50%;
             top: 50%;
             transform: translate(-50%, -50%);
@@ -173,12 +173,12 @@ $result = $conn->query($sql);
         .contents {
             font-size: 18px;
             text-align: center;
-            color: #28a745; /* Vibrant green for text */
+            color: #28a745;
             font-weight: bold;
         }
         .action-buttons a {
             display: inline-block;
-            padding: 10px 12px; /* Adjusted padding */
+            padding: 10px 12px;
             text-decoration: none;
             color: #fff;
             background-color: #006D6D;
@@ -196,7 +196,7 @@ $result = $conn->query($sql);
         }
         .trades-header {
             width: 100%;
-            overflow: auto; /* Clear fix for floated child elements */
+            overflow: auto;
         }
 
     </style>
@@ -212,15 +212,40 @@ $result = $conn->query($sql);
     <div class="container">
         <div class="trades-header">
             <div class="add-button">
-            <a href="" onclick="openCenteredPopup('add_trade.html', 'Add New Trade', 800, 600)">
+            <a href="#" onclick="openCenteredPopup('add_trade.html', 'Add New Trade', 800, 600); return false;">
                 <button type="button"><i class="fa-solid fa-plus"></i> Add New Trade</button>
-            </a>                
+            </a>     
             <a href="add_trade.html" target="_blank"><button type="button"><i class="fa-solid fa-chart-column"></i> Open Analytics</button></a>
             </div>
             <div class="recent-trades">
                 <h2>Recent Trades</h2>
             </div>
         </div>
+
+        <?php if (isset($_GET['add']) && $_GET['add'] == 'success'): ?>
+            <div id="addSuccessModal" class="modal" style="display: block;">
+                <div class="modal-content">
+                    <p class="contents">Trade added successfully!</p>
+                </div>
+            </div>
+        <?php endif; ?>
+        
+        <?php if (isset($_GET['delete']) && $_GET['delete'] == 'success'): ?>
+            <div id="deleteSuccessModal" class="modal" style="display: block;">
+                <div class="modal-content">
+                    <p class="contents">Trade deleted successfully!</p>
+                </div>
+            </div>
+        <?php endif; ?>
+        
+        <?php if (isset($_GET['update']) && $_GET['update'] == 'success'): ?>
+            <div id="updateSuccessModal" class="modal" style="display: block;">
+                <div class="modal-content">
+                    <p class="contents">Trade updated successfully!</p>
+                </div>
+            </div>
+        <?php endif; ?>
+
         <table>
             <thead>
                 <tr>
@@ -235,11 +260,12 @@ $result = $conn->query($sql);
                 </tr>
             </thead>
             <tbody>
-                <?php
+<?php
                 if ($result->num_rows > 0) {
                     $today = new DateTime(); // Today's date
                     while($row = $result->fetch_assoc()) {
-                        echo "<tr>";
+                    $percentage = ($row["net_gain_loss"] / $row["margin"]) * 100;
+
 
                         // Parse the open_date_time from the database
                         $openDateTime = new DateTime($row["open_date_time"]);
@@ -261,11 +287,24 @@ $result = $conn->query($sql);
 
                         echo "<td>" . $row["margin"] . "</td>";
                         echo "<td>" . $row["leverage"] . "</td>";
-                        echo "<td>" . $row["net_gain_loss"] . "</td>";
-                        echo "<td>" . $row["percentage"] . "%</td>";
+                        $netGainLossColor = '#000000'; // Default to black
+                        if ($row["net_gain_loss"] < 0) {
+                            $netGainLossColor = '#a71d2a'; // Darker red if below 0
+                        } elseif ($row["net_gain_loss"] > 0) {
+                            $netGainLossColor = '#19692c'; // Darker green if above 0
+                        }
+                        echo "<td style='color: " . $netGainLossColor . ";'><strong>" . $row["net_gain_loss"] . "</strong></td>";
+
+                        $percentageColor = '#000000'; // Default to black
+                        if ($percentage < 0) {
+                            $percentageColor = '#a71d2a'; // Darker red if below 0
+                        } elseif ($percentage > 0) {
+                            $percentageColor = '#19692c'; // Darker green if above 0
+                        }
+                        echo "<td style='color: " . $percentageColor . ";'><strong>" . number_format($percentage, 2) . "%</strong></td>";
                         echo "<td class='action-buttons'>";
-                        echo "<a href='view_trade.php?id=" . $row["id"] . "' target='_blank'><i class='fa-solid fa-pencil'></i> Edit</a>";
                         echo "<a href='view_trade.php?id=" . $row["id"] . "' target='_blank'><i class='fa-solid fa-arrow-up-right-from-square'></i> View</a>";                        
+                        echo "<a href='edit_trade.php?id=" . $row["id"] . "' onclick='openUpdateWindow(event, this)' data-id='" . $row["id"] . "'><i class='fa-solid fa-pencil'></i> Update</a>";
                         echo "<a href='#' class='delete' data-trade-id='" . $row["id"] . "'><i class='fa-solid fa-trash'></i> Delete</a>";
                         echo "</td>";
                         echo "</tr>";
@@ -277,24 +316,19 @@ $result = $conn->query($sql);
             </tbody>
         </table>
 
-        <!-- Pagination -->
-        <?php
-        // Count total number of rows
-        $sql = "SELECT COUNT(*) AS total FROM trades";
-        $result = $conn->query($sql);
-        $row = $result->fetch_assoc();
-        $total_pages = ceil($row["total"] / $limit);
+        <div class="pagination">
+            <?php
+            $sql = "SELECT COUNT(*) AS total FROM trades";
+            $result = $conn->query($sql);
+            $totalRows = $result->fetch_assoc()['total'];
+            $totalPages = ceil($totalRows / $limit);
 
-        // Render pagination links
-        echo "<div class='pagination'>";
-        for ($i = 1; $i <= $total_pages; $i++) {
-            $active_class = $i == $page ? 'active' : '';
-            echo "<a href='?page=$i' class='$active_class'>$i</a>";
-        }
-        echo "</div>";
-        ?>
+            for ($i = 1; $i <= $totalPages; $i++) {
+                echo "<a href='index.php?page=$i' class='" . ($i == $page ? 'active' : '') . "'>$i</a>";
+            }
+            ?>
+        </div>
     </div>
-
     <!-- Delete Confirmation Modal -->
     <div id="deleteConfirmationModal" class="modal">
         <div class="modal-content">
@@ -310,7 +344,6 @@ $result = $conn->query($sql);
             <p class="contents">Trade deleted successfully.</p>
         </div>
     </div>
-
     <script>
     document.addEventListener("DOMContentLoaded", function() {
         const deleteLinks = document.querySelectorAll('.action-buttons a.delete');
@@ -359,19 +392,63 @@ $result = $conn->query($sql);
     });
     
     </script>
+    <script>
+        // Close the modal after 2 seconds
+        setTimeout(function() {
+            var modal = document.getElementById("addSuccessModal");
+            if (modal) {
+                modal.style.display = "none";
+            }
+            var deleteModal = document.getElementById("deleteSuccessModal");
+            if (deleteModal) {
+                deleteModal.style.display = "none";
+            }
+            var updateModal = document.getElementById("updateSuccessModal");
+            if (updateModal) {
+                updateModal.style.display = "none";
+            }
+        }, 2000);
+
+
+
+        // Open centered popup function
+function openCenteredPopup(url, title) {
+    const dualScreenLeft = window.screenLeft !== undefined ? window.screenLeft : window.screenX;
+    const dualScreenTop = window.screenTop !== undefined ? window.screenTop : window.screenY;
+
+    const windowWidth = 500; // Fixed width of 500px
+    const windowHeight = window.innerHeight || document.documentElement.clientHeight || screen.height;
+
+    const left = ((screen.width / 2) - (windowWidth / 2)) + dualScreenLeft;
+    const top = 0 + dualScreenTop;
+
+    const newWindow = window.open(url, title, `scrollbars=yes, width=${windowWidth}, height=${windowHeight}, top=${top}, left=${left}`);
+
+    if (window.focus) {
+        newWindow.focus();
+    }
+}
+    </script>
+    <script>
+        function openUpdateWindow(event, element) {
+            event.preventDefault();
+            const id = element.getAttribute('data-id');
+            const url = 'edit_trade.php?id=' + id;
+            const width = 800;
+            const height = 600;
+            const left = (window.screen.width / 2) - (width / 2);
+            const top = (window.screen.height / 2) - (height / 2);
+            const features = `scrollbars=yes, width=${width}, height=${height}, top=${top}, left=${left}`;
+
+            // Open the update trade window
+            window.open(url, '_blank', features);
+
+            // Optional: Close the success modal after opening the update window
+            const updateSuccessModal = document.getElementById('updateSuccessModal');
+            if (updateSuccessModal) {
+                updateSuccessModal.style.display = 'none';
+            }
+        }
+    </script>
 </body>
 </html>
-
-<?php
-$conn->close();
-?>
-<script>
-function openCenteredPopup(url, title, width, height) {
-    const screenHeight = screen.height;
-    height = screenHeight; 
-    const left = (screen.width - width) / 2;
-    const top = 0;
-    const options = `toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no, width=${width}, height=${height}, top=${top}, left=${left}`;
-    window.open(url, title, options);
-}
-</script>
