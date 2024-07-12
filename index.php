@@ -26,6 +26,13 @@ $result = $conn->query($sql);
     <script src="https://kit.fontawesome.com/0d118bca32.js" crossorigin="anonymous"></script>
     <title>Trading Journal</title>
     <style>
+        @font-face {
+            font-family: 'CustomFont';
+            src: url('Liber v2/LiberGrotesqueFamily-Regular.ttf') format('woff2'),
+                 url('Liber v2/LiberGrotesqueFamily-Regular.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
         body {
             font-family: Arial, sans-serif;
             margin: 0;
@@ -40,6 +47,7 @@ $result = $conn->query($sql);
             position: relative;
         }
         .header-content {
+            font-family:'CustomFont', sans-serif;
             position: absolute;
             top: 20%;
             left: 50%;
@@ -215,7 +223,7 @@ $result = $conn->query($sql);
             <a href="#" onclick="openCenteredPopup('add_trade.html', 'Add New Trade', 800, 600); return false;">
                 <button type="button"><i class="fa-solid fa-plus"></i> Add New Trade</button>
             </a>     
-            <a href="add_trade.html" target="_blank"><button type="button"><i class="fa-solid fa-chart-column"></i> Open Analytics</button></a>
+            <a href="dashboard.php" target="_blank"><button type="button"><i class="fa-solid fa-chart-column"></i> Open Analytics</button></a>
             </div>
             <div class="recent-trades">
                 <h2>Recent Trades</h2>

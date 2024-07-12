@@ -15,8 +15,7 @@ $symbol = $_POST['symbol'];
 $direction = $_POST['direction'];
 $margin = $_POST['margin'];
 $leverage = $_POST['leverage'];
-$net_gain_loss = isset($_POST['net_gain_loss']) && $_POST['net_gain_loss'] !== '' ? $_POST['net_gain_loss'] : 0; // Set net_gain_loss to 0 if empty
-$remarks = $_POST['remarks'];
+$rrr = $_POST['rrr'];
 $strategy = $_POST['strategy']; // New field: Strategy
 
 // File upload handling
@@ -26,8 +25,8 @@ $target_file = $target_dir . basename($image);
 move_uploaded_file($_FILES['image']['tmp_name'], $target_file);
 
 // Prepare SQL statement
-$sql = "INSERT INTO trades (symbol, direction, margin, leverage, net_gain_loss, image, strategy, remarks)
-        VALUES ('$symbol', '$direction', '$margin', '$leverage', '$net_gain_loss', '$target_file', '$strategy', '$remarks')";
+$sql = "INSERT INTO trades (symbol, direction, margin, leverage, rrr, image, strategy)
+        VALUES ('$symbol', '$direction', '$margin', '$leverage', '$rrr', '$target_file', '$strategy')";
 
 // Execute SQL statement
 if ($conn->query($sql) === TRUE) {
